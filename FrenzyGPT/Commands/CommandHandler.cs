@@ -19,12 +19,14 @@ public static class CommandHandler
             case "/help":
                 Console.WriteLine("\nCommands:");
                 Console.WriteLine("/help  - Show commands");
+                Console.WriteLine("/whoami - Show current logged-in user");
                 Console.WriteLine("/clear - Clear chat memory");
                 Console.WriteLine("/stats - Shows the amount of message in current memory");
                 Console.WriteLine("/tokens - Shows total amount tokens used");
                 Console.WriteLine("/save 'name' - Save current chat");
                 Console.WriteLine("/load 'name' - Load saved chat");
                 Console.WriteLine("/chats     - Show saved chats");
+                Console.WriteLine("/logout - Log out current user");
                 Console.WriteLine("/exit  - Close FrenzyGPT");
 
                 return true;
@@ -60,15 +62,40 @@ public static class CommandHandler
                 ChatStorage.ShowChats();
                 return true;
 
+            case "/logout":
+                Logout(conversation);
+                return true;
+
             case "/exit":
                 Console.WriteLine("\nGoodbye.");
                 Environment.Exit(0);
+                return true;
+
+            case "/whoami":
+                ConsoleUI.SystemMessage("Current User:");
+                Console.WriteLine(Session.CurrentUser);
                 return true;
 
             default:
                 Console.WriteLine("\nUnknown command. Type /help.");
                 return true;
         }
+    }
+
+    private static void Logout(List<ChatMessage> conversation)
+    {
+        conversation.Clear();
+        Session.CurrentUser = "";
+
+        ConsoleUI.SystemMessage("Logged out.");
+
+        if (!LoginScreen.Show())
+        {
+            ConsoleUI.Error("Access denied.");
+            Environment.Exit(0);
+        }
+
+        StartupScreen.Show();
     }
 
     private static void ShowStats(List<ChatMessage> conversation)
