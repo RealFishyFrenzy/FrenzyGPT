@@ -18,6 +18,12 @@ class Program
             return;
         }
 
+        if (!LoginScreen.Show())
+        {
+            ConsoleUI.Error("Access denied.");
+            return;
+        }
+
         StartupScreen.Show();
 
         List<ChatMessage> conversation = new();

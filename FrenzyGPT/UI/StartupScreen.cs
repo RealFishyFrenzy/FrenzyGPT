@@ -14,7 +14,7 @@ public static class StartupScreen
 
         ConsoleUI.Header();
 
-        ConsoleUI.SystemMessage("Welcome Kevin!");
+        ConsoleUI.SystemMessage("Welcome " + Session.CurrentUser);
 
         Console.WriteLine($"Saved Chats: {chats.Length}");
 

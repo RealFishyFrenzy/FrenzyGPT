@@ -6,7 +6,7 @@ public static class ConsoleUI
     {
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine("===================");
-        Console.WriteLine("FrenzyGPT v0.1");
+        Console.WriteLine("FrenzyGPT v0.3");
         Console.WriteLine("===================");
         Console.ResetColor();
     }
