@@ -14,6 +14,15 @@ public static class CommandHandler
         if (!userInput.StartsWith("/"))
             return false;
 
+        foreach (ICommandPlugin plugin in PluginManager.Plugins)
+        {
+            if (plugin.CanHandle(userInput))
+            {
+                plugin.Execute(userInput);
+                return true;
+            }
+        }
+
         switch (userInput.ToLower())
         {
             case "/help":
@@ -26,6 +35,7 @@ public static class CommandHandler
                 Console.WriteLine("/save 'name' - Save current chat");
                 Console.WriteLine("/load 'name' - Load saved chat");
                 Console.WriteLine("/chats     - Show saved chats");
+                Console.WriteLine("/plugins - Shows plugins installed");
                 Console.WriteLine("/logout - Log out current user");
                 Console.WriteLine("/exit  - Close FrenzyGPT");
 
@@ -74,6 +84,19 @@ public static class CommandHandler
             case "/whoami":
                 ConsoleUI.SystemMessage("Current User:");
                 Console.WriteLine(Session.CurrentUser);
+                return true;
+
+            case "/plugins":
+
+                ConsoleUI.SystemMessage("Loaded Plugins");
+
+                foreach (var plugin in PluginManager.Plugins)
+                {
+                    Console.WriteLine(plugin.Name);
+                }
+
+                Console.WriteLine($"\nTotal: {PluginManager.Plugins.Count}");
+
                 return true;
 
             default:
