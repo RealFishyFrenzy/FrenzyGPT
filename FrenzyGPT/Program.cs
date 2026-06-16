@@ -36,16 +36,25 @@ class Program
         while (true)
         {
             ConsoleUI.UserPrompt();
-            string? userInput = Console.ReadLine();
+
+            string userInput = Console.ReadLine() ?? "";
 
             if (string.IsNullOrWhiteSpace(userInput))
+                continue;
+
+            if (userInput.StartsWith("/"))
             {
-                Console.WriteLine("You typed nothing.");
+                CommandHandler.HandleCommand(userInput, conversation, openAI);
                 continue;
             }
 
-            if (CommandHandler.HandleCommand(userInput, conversation, openAI))
+            if (userInput.StartsWith("."))
+            {
+                PluginManager.HandlePlugin(userInput);
                 continue;
+            }
+
+            // AI message
 
             conversation.Add(new ChatMessage
             {

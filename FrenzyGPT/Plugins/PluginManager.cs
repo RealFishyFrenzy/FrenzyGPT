@@ -6,4 +6,21 @@ public static class PluginManager
     {
         new CalculatorPlugin()
     };
+
+    public static bool HandlePlugin(string userInput)
+    {
+        foreach (ICommandPlugin plugin in Plugins)
+        {
+            if (userInput.StartsWith(plugin.Command))
+            {
+                plugin.Execute(userInput);
+                return true;
+            }
+        }
+
+        ConsoleUI.Error("Unknown plugin.");
+
+        return true;
+    }
 }
+

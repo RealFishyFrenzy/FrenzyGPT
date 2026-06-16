@@ -2,7 +2,9 @@
 {
     string Name { get; }
 
-    bool CanHandle(string input);
+    string Command { get; }
+
+    string Description { get; }
 
     void Execute(string input);
 }
