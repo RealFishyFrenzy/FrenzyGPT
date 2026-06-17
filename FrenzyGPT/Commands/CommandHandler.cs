@@ -16,7 +16,7 @@ public static class CommandHandler
 
         foreach (ICommandPlugin plugin in PluginManager.Plugins)
         {
-            if (plugin.CanHandle(userInput))
+            if (userInput.StartsWith(plugin.Command))
             {
                 plugin.Execute(userInput);
                 return true;

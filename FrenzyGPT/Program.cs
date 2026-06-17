@@ -24,7 +24,12 @@ class Program
             return;
         }
 
-        StartupScreen.Show();
+        UserSettings settings = SettingsService.Load();
+
+        if (settings.ShowStartup)
+        {
+            StartupScreen.Show();
+        }
 
         List<ChatMessage> conversation = new();
 
