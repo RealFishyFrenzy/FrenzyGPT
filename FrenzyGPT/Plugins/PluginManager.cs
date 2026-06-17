@@ -22,5 +22,18 @@ public static class PluginManager
 
         return true;
     }
+
+    public static void ShowPlugins()
+    {
+        ConsoleUI.SystemMessage("Loaded Plugins");
+
+        foreach (ICommandPlugin plugin in Plugins)
+        {
+            Console.WriteLine($"{plugin.Command} - {plugin.Name}");
+            Console.WriteLine($"    {plugin.Description}");
+        }
+
+        Console.WriteLine($"\nTotal: {Plugins.Count}");
+    }
 }
 

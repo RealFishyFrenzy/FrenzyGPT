@@ -14,36 +14,39 @@ public static class CommandHandler
         if (!userInput.StartsWith("/"))
             return false;
 
-        foreach (ICommandPlugin plugin in PluginManager.Plugins)
-        {
-            if (userInput.StartsWith(plugin.Command))
-            {
-                plugin.Execute(userInput);
-                return true;
-            }
-        }
+        
 
         switch (userInput.ToLower())
         {
             case "/help":
-                Console.WriteLine("\nCommands:");
-                Console.WriteLine("/help  - Show commands");
-                Console.WriteLine("/whoami - Show current logged-in user");
-                Console.WriteLine("/clear - Clear chat memory");
-                Console.WriteLine("/stats - Shows the amount of message in current memory");
-                Console.WriteLine("/tokens - Shows total amount tokens used");
-                Console.WriteLine("/save 'name' - Save current chat");
-                Console.WriteLine("/load 'name' - Load saved chat");
-                Console.WriteLine("/chats     - Show saved chats");
-                Console.WriteLine("/plugins - Shows plugins installed");
-                Console.WriteLine("/logout - Log out current user");
-                Console.WriteLine("/exit  - Close FrenzyGPT");
+                ShowHelpMain();
+                return true;
 
+            case "/help chat":
+                ShowHelpChat();
+                return true;
+
+            case "/help account":
+                ShowHelpAccount();
+                return true;
+
+            case "/help system":
+                ShowHelpSystem();
+                return true;
+
+            case "/help plugins":
+                PluginManager.ShowPlugins();
                 return true;
 
             case "/clear":
                 conversation.Clear();
                 Console.WriteLine("\nChat memory cleared.");
+                return true;
+
+            case "/cls":
+                Console.Clear();
+                ConsoleUI.Header();
+
                 return true;
 
             case "/stats":
@@ -86,16 +89,14 @@ public static class CommandHandler
                 Console.WriteLine(Session.CurrentUser);
                 return true;
 
+            case "/settings":
+
+                ShowSettings();
+                return true;
+
             case "/plugins":
 
-                ConsoleUI.SystemMessage("Loaded Plugins");
-
-                foreach (var plugin in PluginManager.Plugins)
-                {
-                    Console.WriteLine(plugin.Name);
-                }
-
-                Console.WriteLine($"\nTotal: {PluginManager.Plugins.Count}");
+                PluginManager.ShowPlugins();
 
                 return true;
 
@@ -103,6 +104,45 @@ public static class CommandHandler
                 Console.WriteLine("\nUnknown command. Type /help.");
                 return true;
         }
+    }
+
+    private static void ShowHelpMain()
+    {
+        ConsoleUI.SystemMessage("Help");
+
+        Console.WriteLine("/help chat      - Chat commands");
+        Console.WriteLine("/help account   - Account commands");
+        Console.WriteLine("/help system    - System commands");
+        Console.WriteLine("/help plugins   - Plugin commands");
+    }
+
+    private static void ShowHelpChat()
+    {
+        ConsoleUI.SystemMessage("Chat Commands");
+
+        Console.WriteLine("/save <name>    - Save current chat");
+        Console.WriteLine("/load <name>    - Load a chat");
+        Console.WriteLine("/chats          - Show saved chats");
+        Console.WriteLine("/clear          - Clear chat memory");
+    }
+
+    private static void ShowHelpAccount()
+    {
+        ConsoleUI.SystemMessage("Account Commands");
+
+        Console.WriteLine("/whoami         - Current user");
+        Console.WriteLine("/logout         - Logout");
+    }
+
+    private static void ShowHelpSystem()
+    {
+        ConsoleUI.SystemMessage("System Commands");
+
+        Console.WriteLine("/settings       - View settings");
+        Console.WriteLine("/stats          - Chat statistics");
+        Console.WriteLine("/tokens         - Last API token usage");
+        Console.WriteLine("/cls            - Clear console");
+        Console.WriteLine("/exit           - Exit FrenzyGPT");
     }
 
     private static void Logout(List<ChatMessage> conversation)
@@ -140,6 +180,19 @@ public static class CommandHandler
         Console.WriteLine($"User messages: {userMessages}");
         Console.WriteLine($"AI messages: {aiMessages}");
     }
+
+    private static void ShowSettings()
+    {
+        UserSettings settings = SettingsService.Load();
+
+        ConsoleUI.SystemMessage("Settings");
+
+        Console.WriteLine($"Model           : {settings.Model}");
+        Console.WriteLine($"Theme           : {settings.Theme}");
+        Console.WriteLine($"ShowStartup     : {settings.ShowStartup}");
+    }
+
+    
 
     private static void SaveCommand(string userInput, List<ChatMessage> conversation)
     {
