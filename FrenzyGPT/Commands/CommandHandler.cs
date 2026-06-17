@@ -9,12 +9,10 @@ public static class CommandHandler
     public static bool HandleCommand(
     string userInput,
     List<ChatMessage> conversation,
-    OpenAIClient client)
+    IAIProvider client)
     {
         if (!userInput.StartsWith("/"))
             return false;
-
-        
 
         switch (userInput.ToLower())
         {
@@ -89,6 +87,14 @@ public static class CommandHandler
                 Console.WriteLine(Session.CurrentUser);
                 return true;
 
+            case string command when command.StartsWith("/provider"):
+                ProviderCommand(userInput);
+                return true;
+
+            case string command when command.StartsWith("/model"):
+                ModelCommand(userInput);
+                return true;
+
             case "/settings":
 
                 ShowSettings();
@@ -138,6 +144,7 @@ public static class CommandHandler
     {
         ConsoleUI.SystemMessage("System Commands");
 
+        Console.WriteLine("/model          - Show/change AI model");
         Console.WriteLine("/settings       - View settings");
         Console.WriteLine("/stats          - Chat statistics");
         Console.WriteLine("/tokens         - Last API token usage");
@@ -192,7 +199,91 @@ public static class CommandHandler
         Console.WriteLine($"ShowStartup     : {settings.ShowStartup}");
     }
 
-    
+
+    private static void ProviderCommand(string userInput)
+    {
+        UserSettings settings = SettingsService.Load();
+
+        string[] parts = userInput.Split(' ', 2);
+
+        if (parts.Length < 2)
+        {
+            ConsoleUI.SystemMessage("Current Provider");
+            Console.WriteLine(settings.Provider);
+            Console.WriteLine("\nOptions:");
+            Console.WriteLine("OpenAI");
+            Console.WriteLine("Claude");
+            Console.WriteLine("\nUse: /provider Claude");
+            return;
+        }
+
+        string provider = parts[1].Trim();
+
+        if (provider.ToLower() != "openai" && provider.ToLower() != "claude")
+        {
+            ConsoleUI.Error("Unknown provider. Use OpenAI or Claude.");
+            return;
+        }
+
+        settings.Provider = provider;
+        SettingsService.Save(settings);
+
+        ConsoleUI.SystemMessage($"Provider changed to: {provider}");
+        ConsoleUI.SystemMessage("Restart FrenzyGPT for this to take effect.");
+    }
+
+
+    private static void ModelCommand(string userInput)
+    {
+        UserSettings settings = SettingsService.Load();
+        List<string> models = SettingsService.GetAvailableModels();
+
+        string[] parts = userInput.Split(' ', 2);
+
+        if (parts.Length < 2 || string.IsNullOrWhiteSpace(parts[1]))
+        {
+            ConsoleUI.SystemMessage("AI Models");
+
+            for (int i = 0; i < models.Count; i++)
+            {
+                string selected = models[i] == settings.Model ? " <-- current" : "";
+                Console.WriteLine($"{i + 1}. {models[i]}{selected}");
+            }
+
+            Console.WriteLine("\nUse: /model 1");
+            Console.WriteLine("Or:  /model gpt-5.4-mini");
+            return;
+        }
+
+        string choice = parts[1].Trim();
+
+        if (int.TryParse(choice, out int index))
+        {
+            if (index < 1 || index > models.Count)
+            {
+                ConsoleUI.Error("Invalid model number.");
+                return;
+            }
+
+            settings.Model = models[index - 1];
+            SettingsService.Save(settings);
+
+            ConsoleUI.SystemMessage($"Model changed to: {settings.Model}");
+            return;
+        }
+
+        if (!models.Contains(choice))
+        {
+            ConsoleUI.Error("Unknown model.");
+            return;
+        }
+
+        settings.Model = choice;
+        SettingsService.Save(settings);
+
+        ConsoleUI.SystemMessage($"Model changed to: {settings.Model}");
+    }
+
 
     private static void SaveCommand(string userInput, List<ChatMessage> conversation)
     {

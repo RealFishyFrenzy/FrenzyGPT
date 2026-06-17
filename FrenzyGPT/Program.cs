@@ -36,7 +36,7 @@ class Program
         using HttpClient client = new HttpClient();
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
 
-        OpenAIClient openAI = new OpenAIClient(client);
+        IAIProvider ai = ProviderFactory.Create(client, settings);
 
         while (true)
         {
@@ -49,7 +49,7 @@ class Program
 
             if (userInput.StartsWith("/"))
             {
-                CommandHandler.HandleCommand(userInput, conversation, openAI);
+                CommandHandler.HandleCommand(userInput, conversation, ai);
                 continue;
             }
 
@@ -67,7 +67,7 @@ class Program
                 content = userInput
             });
 
-            string aiText = await openAI.SendMessage(conversation);
+            string aiText = await ai.SendMessage(conversation);
 
             if (!string.IsNullOrWhiteSpace(aiText))
             {

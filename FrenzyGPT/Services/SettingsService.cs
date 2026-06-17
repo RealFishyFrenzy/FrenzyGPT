@@ -31,4 +31,13 @@ public static class SettingsService
 
         File.WriteAllText(SettingsFile, json);
     }
+
+    public static List<string> GetAvailableModels()
+    {
+        return new List<string>
+        {
+            "gpt-5.4-mini",
+            "gpt-5.5"
+        };
+    }
 }
