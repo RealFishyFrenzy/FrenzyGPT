@@ -7,5 +7,7 @@ public interface IAIProvider
 
     TokenUsage Usage { get; }
 
+    bool IsAvailable();
+
     Task<string> SendMessage(List<ChatMessage> conversation);
 }

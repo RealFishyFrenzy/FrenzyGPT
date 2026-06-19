@@ -38,4 +38,21 @@ public static class ConsoleUI
         Console.WriteLine("\n" + text);
         Console.ResetColor();
     }
+
+    public static void OfflineBanner()
+    {
+        SystemMessage("Offline Mode");
+
+        Console.WriteLine("AI Provider unavailable.");
+        Console.WriteLine("Cloud AI chat is disabled.\n");
+
+        Console.WriteLine("Available:");
+        Console.WriteLine("  /help");
+        Console.WriteLine("  /settings");
+        Console.WriteLine("  /plugins");
+        Console.WriteLine("  /save");
+        Console.WriteLine("  /load");
+        Console.WriteLine("  .plugins");
+        Console.WriteLine();
+    }
 }

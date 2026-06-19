@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Runtime.CompilerServices;
 
 public static class CommandHandler
 {
@@ -87,6 +88,10 @@ public static class CommandHandler
                 Console.WriteLine(Session.CurrentUser);
                 return true;
 
+            case "/ai":
+                ShowAIStatus(client);
+                return true;
+
             case string command when command.StartsWith("/provider"):
                 ProviderCommand(userInput);
                 return true;
@@ -144,6 +149,8 @@ public static class CommandHandler
     {
         ConsoleUI.SystemMessage("System Commands");
 
+        Console.WriteLine("/ai             - Show AI provider/model status");
+        Console.WriteLine("/Provider       - Shows Available Providers");
         Console.WriteLine("/model          - Show/change AI model");
         Console.WriteLine("/settings       - View settings");
         Console.WriteLine("/stats          - Chat statistics");
@@ -199,6 +206,18 @@ public static class CommandHandler
         Console.WriteLine($"ShowStartup     : {settings.ShowStartup}");
     }
 
+    private static void ShowAIStatus(IAIProvider client)
+    {
+        UserSettings settings = SettingsService.Load();
+
+        ConsoleUI.SystemMessage("AI Configuration");
+
+        Console.WriteLine($"Provider : {settings.Provider}");
+        Console.WriteLine($"Model    : {settings.Model}");
+        Console.WriteLine($"API Key  : {(client.IsAvailable() ? "Loaded" : "Missing")}");
+    }
+
+
 
     private static void ProviderCommand(string userInput)
     {
@@ -226,6 +245,7 @@ public static class CommandHandler
         }
 
         settings.Provider = provider;
+        settings.Model = SettingsService.GetDefaultModel(provider);
         SettingsService.Save(settings);
 
         ConsoleUI.SystemMessage($"Provider changed to: {provider}");
@@ -236,7 +256,7 @@ public static class CommandHandler
     private static void ModelCommand(string userInput)
     {
         UserSettings settings = SettingsService.Load();
-        List<string> models = SettingsService.GetAvailableModels();
+        List<string> models = SettingsService.GetAvailableModels(settings.Provider);
 
         string[] parts = userInput.Split(' ', 2);
 
@@ -250,8 +270,8 @@ public static class CommandHandler
                 Console.WriteLine($"{i + 1}. {models[i]}{selected}");
             }
 
-            Console.WriteLine("\nUse: /model 1");
-            Console.WriteLine("Or:  /model gpt-5.4-mini");
+            Console.WriteLine("\nUse: /model <number>");
+            Console.WriteLine("Or:  /model <model-name>");
             return;
         }
 

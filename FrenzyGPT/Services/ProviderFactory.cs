@@ -6,9 +6,9 @@ public static class ProviderFactory
     {
         return settings.Provider.ToLower() switch
         {
-            "openai" => new OpenAIProvider(client),
-            "claude" => new ClaudeProvider(client),
-            _ => new OpenAIProvider(client)
+            "openai" => new OpenAIProvider(client, settings.Model),
+            "claude" => new ClaudeProvider(client, settings.Model),
+            _ => new OpenAIProvider(client, settings.Model)
         };
     }
 }

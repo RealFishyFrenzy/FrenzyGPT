@@ -10,13 +10,14 @@ public class ClaudeProvider : IAIProvider
     public string Name => "Claude";
 
     private readonly HttpClient _client;
-    private readonly string _model = "claude-sonnet-4-5";
+    private readonly string _model;
 
     public TokenUsage Usage { get; private set; } = new TokenUsage();
 
-    public ClaudeProvider(HttpClient client)
+    public ClaudeProvider(HttpClient client, string model)
     {
         _client = client;
+        _model = model;
     }
 
     public async Task<string> SendMessage(List<ChatMessage> conversation)
@@ -89,5 +90,15 @@ public class ClaudeProvider : IAIProvider
         Usage.TotalTokens = Usage.InputTokens + Usage.OutputTokens;
 
         return aiText;
+    }
+
+    public bool IsAvailable()
+    {
+        string? apiKey = Environment.GetEnvironmentVariable(
+            "ANTHROPIC_API_KEY",
+            EnvironmentVariableTarget.User
+        );
+
+        return !string.IsNullOrWhiteSpace(apiKey);
     }
 }

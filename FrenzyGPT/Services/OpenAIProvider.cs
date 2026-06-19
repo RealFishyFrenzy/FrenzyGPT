@@ -10,17 +10,29 @@ public class OpenAIProvider : IAIProvider
     public string Name => "OpenAI";
 
     private readonly HttpClient _client;
-    private readonly string _model = "gpt-5.4-mini";
+    private readonly string _model;
 
     public TokenUsage Usage { get; private set; } = new TokenUsage();
 
-    public OpenAIProvider(HttpClient client)
+    public OpenAIProvider(HttpClient client, string model)
     {
         _client = client;
+        _model = model;
     }
 
     public async Task<string> SendMessage(List<ChatMessage> conversation)
     {
+
+        string? apiKey = Environment.GetEnvironmentVariable(
+            "OPENAI_API_KEY",
+            EnvironmentVariableTarget.User
+        );
+
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            ConsoleUI.Error("OpenAI API key not found.");
+            return "";
+        }
         var requestBody = new
         {
             model = _model,
@@ -35,10 +47,15 @@ public class OpenAIProvider : IAIProvider
             "application/json"
         );
 
-        HttpResponseMessage response = await _client.PostAsync(
-            "https://api.openai.com/v1/responses",
-            content
+        using HttpRequestMessage request = new HttpRequestMessage(
+            HttpMethod.Post,
+            "https://api.openai.com/v1/responses"
         );
+
+        request.Headers.Add("Authorization", $"Bearer {apiKey}");
+        request.Content = content;
+
+        HttpResponseMessage response = await _client.SendAsync(request);
 
         string responseText = await response.Content.ReadAsStringAsync();
 
@@ -58,5 +75,15 @@ public class OpenAIProvider : IAIProvider
         Usage.TotalTokens = usage.GetProperty("total_tokens").GetInt32();
 
         return ResponseParser.ParseResponse(responseText);
+    }
+
+    public bool IsAvailable()
+    {
+        string? apiKey = Environment.GetEnvironmentVariable(
+        "OPENAI_API_KEY",
+        EnvironmentVariableTarget.User
+    );
+
+        return !string.IsNullOrWhiteSpace(apiKey);
     }
 }

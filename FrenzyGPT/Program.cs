@@ -7,17 +7,6 @@ class Program
 {
     static async Task Main()
     {
-        string? apiKey = Environment.GetEnvironmentVariable(
-            "OPENAI_API_KEY",
-            EnvironmentVariableTarget.User
-        );
-
-        if (string.IsNullOrWhiteSpace(apiKey))
-        {
-            Console.WriteLine("API key not found");
-            return;
-        }
-
         if (!LoginScreen.Show())
         {
             ConsoleUI.Error("Access denied.");
@@ -34,9 +23,16 @@ class Program
         List<ChatMessage> conversation = new();
 
         using HttpClient client = new HttpClient();
-        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+        
 
         IAIProvider ai = ProviderFactory.Create(client, settings);
+
+        bool offlineMode = !ai.IsAvailable();
+
+        if(offlineMode)
+        {
+            ConsoleUI.OfflineBanner();
+        }
 
         while (true)
         {
@@ -56,6 +52,12 @@ class Program
             if (userInput.StartsWith("."))
             {
                 PluginManager.HandlePlugin(userInput);
+                continue;
+            }
+
+            if (offlineMode)
+            {
+                ConsoleUI.Error("AI chat is unavailable in Offline mode.");
                 continue;
             }
 
@@ -81,4 +83,5 @@ class Program
             }
         }
     }
+}
 }

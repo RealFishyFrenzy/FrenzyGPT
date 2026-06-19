@@ -32,12 +32,33 @@ public static class SettingsService
         File.WriteAllText(SettingsFile, json);
     }
 
-    public static List<string> GetAvailableModels()
+    public static List<string> GetAvailableModels(string provider)
     {
-        return new List<string>
+        return provider.ToLower() switch
         {
-            "gpt-5.4-mini",
-            "gpt-5.5"
+            "openai" => new List<string>
+            {
+                "gpt-5.4-mini",
+                "gpt-5.5"
+            },
+
+            "claude" => new List<string>
+            {
+                "claude-sonnet-4-5",
+                "claude-opus-4-1"
+            },
+
+            _ => new List<string>()
+        };
+    }
+
+    public static string GetDefaultModel(string provider)
+    {
+        return provider.ToLower() switch
+        {
+            "openai" => "gpt-5.4-mini",
+            "claude" => "claude-sonnet-4-5",
+            _ => "gpt-5.4-mini"
         };
     }
 }
