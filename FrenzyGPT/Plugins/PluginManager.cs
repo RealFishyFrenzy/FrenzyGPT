@@ -29,11 +29,14 @@ public static class PluginManager
 
         foreach (ICommandPlugin plugin in Plugins)
         {
-            Console.WriteLine($"{plugin.Command} - {plugin.Name}");
-            Console.WriteLine($"    {plugin.Description}");
+            Console.WriteLine($"{plugin.Name} v{plugin.Version}");
+            Console.WriteLine($"Author      : {plugin.Author}");
+            Console.WriteLine($"Command     : {plugin.Command}");
+            Console.WriteLine($"Description : {plugin.Description}");
+            Console.WriteLine();
         }
 
-        Console.WriteLine($"\nTotal: {Plugins.Count}");
+        Console.WriteLine($"Total: {Plugins.Count}");
     }
 }
 

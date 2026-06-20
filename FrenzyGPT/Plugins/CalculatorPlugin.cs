@@ -4,10 +4,10 @@ using System.Data;
 public class CalculatorPlugin : ICommandPlugin
 {
     public string Name => "Calculator";
-
+    public string Version => "1.0";
+    public string Author => "FishyFrenzy";
     public string Command => ".calc";
-
-    public string Description => "Basic calculator.";
+    public string Description => "Basic calculator plugin.";
 
     public void Execute(string input)
     {
@@ -24,7 +24,6 @@ public class CalculatorPlugin : ICommandPlugin
             object result = new DataTable().Compute(expression, null);
 
             ConsoleUI.SystemMessage("Calculator");
-
             Console.WriteLine($"{expression} = {result}");
         }
         catch

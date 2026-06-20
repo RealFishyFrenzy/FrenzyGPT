@@ -17,24 +17,8 @@ public static class CommandHandler
 
         switch (userInput.ToLower())
         {
-            case "/help":
-                ShowHelpMain();
-                return true;
-
-            case "/help chat":
-                ShowHelpChat();
-                return true;
-
-            case "/help account":
-                ShowHelpAccount();
-                return true;
-
-            case "/help system":
-                ShowHelpSystem();
-                return true;
-
-            case "/help plugins":
-                PluginManager.ShowPlugins();
+            case string command when command.StartsWith("/help"):
+                HelpManager.Show(userInput);
                 return true;
 
             case "/clear":
@@ -117,47 +101,7 @@ public static class CommandHandler
         }
     }
 
-    private static void ShowHelpMain()
-    {
-        ConsoleUI.SystemMessage("Help");
-
-        Console.WriteLine("/help chat      - Chat commands");
-        Console.WriteLine("/help account   - Account commands");
-        Console.WriteLine("/help system    - System commands");
-        Console.WriteLine("/help plugins   - Plugin commands");
-    }
-
-    private static void ShowHelpChat()
-    {
-        ConsoleUI.SystemMessage("Chat Commands");
-
-        Console.WriteLine("/save <name>    - Save current chat");
-        Console.WriteLine("/load <name>    - Load a chat");
-        Console.WriteLine("/chats          - Show saved chats");
-        Console.WriteLine("/clear          - Clear chat memory");
-    }
-
-    private static void ShowHelpAccount()
-    {
-        ConsoleUI.SystemMessage("Account Commands");
-
-        Console.WriteLine("/whoami         - Current user");
-        Console.WriteLine("/logout         - Logout");
-    }
-
-    private static void ShowHelpSystem()
-    {
-        ConsoleUI.SystemMessage("System Commands");
-
-        Console.WriteLine("/ai             - Show AI provider/model status");
-        Console.WriteLine("/Provider       - Shows Available Providers");
-        Console.WriteLine("/model          - Show/change AI model");
-        Console.WriteLine("/settings       - View settings");
-        Console.WriteLine("/stats          - Chat statistics");
-        Console.WriteLine("/tokens         - Last API token usage");
-        Console.WriteLine("/cls            - Clear console");
-        Console.WriteLine("/exit           - Exit FrenzyGPT");
-    }
+    
 
     private static void Logout(List<ChatMessage> conversation)
     {
@@ -256,7 +200,7 @@ public static class CommandHandler
     private static void ModelCommand(string userInput)
     {
         UserSettings settings = SettingsService.Load();
-        List<string> models = SettingsService.GetAvailableModels(settings.Provider);
+        List<AIModel> models = SettingsService.GetAvailableModels(settings.Provider);
 
         string[] parts = userInput.Split(' ', 2);
 
@@ -266,12 +210,14 @@ public static class CommandHandler
 
             for (int i = 0; i < models.Count; i++)
             {
-                string selected = models[i] == settings.Model ? " <-- current" : "";
-                Console.WriteLine($"{i + 1}. {models[i]}{selected}");
+                string selected = models[i].Id == settings.Model ? " <-- current" : "";
+
+                Console.WriteLine($"{i + 1}. {models[i].DisplayName}{selected}");
+                Console.WriteLine($"   {models[i].Description}");
             }
 
             Console.WriteLine("\nUse: /model <number>");
-            Console.WriteLine("Or:  /model <model-name>");
+            Console.WriteLine("Or:  /model <display-name>");
             return;
         }
 
@@ -285,23 +231,27 @@ public static class CommandHandler
                 return;
             }
 
-            settings.Model = models[index - 1];
+            settings.Model = models[index - 1].Id;
             SettingsService.Save(settings);
 
-            ConsoleUI.SystemMessage($"Model changed to: {settings.Model}");
+            ConsoleUI.SystemMessage($"Model changed to: {models[index - 1].DisplayName}");
             return;
         }
 
-        if (!models.Contains(choice))
+        AIModel? selectedModel = models.FirstOrDefault(
+            m => m.DisplayName.Equals(choice, StringComparison.OrdinalIgnoreCase)
+        );
+
+        if (selectedModel == null)
         {
             ConsoleUI.Error("Unknown model.");
             return;
         }
 
-        settings.Model = choice;
+        settings.Model = selectedModel.Id;
         SettingsService.Save(settings);
 
-        ConsoleUI.SystemMessage($"Model changed to: {settings.Model}");
+        ConsoleUI.SystemMessage($"Model changed to: {selectedModel.DisplayName}");
     }
 
 
