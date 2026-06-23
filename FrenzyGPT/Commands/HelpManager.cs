@@ -73,6 +73,7 @@ public static class HelpManager
         Console.WriteLine("/provider       - Show/change provider");
         Console.WriteLine("/model          - Show/change model");
         Console.WriteLine("/settings       - View settings");
+        Console.WriteLine("/theme          - Show/change console theme");
         Console.WriteLine("/stats          - Show chat stats");
         Console.WriteLine("/tokens         - Show token usage");
         Console.WriteLine("/cls            - Clear screen");

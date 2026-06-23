@@ -4,7 +4,7 @@ public static class ConsoleUI
 {
     public static void Header()
     {
-        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.ForegroundColor = ThemeManager.Current.HeaderColor;
         Console.WriteLine("===================");
         Console.WriteLine("FrenzyGPT v0.3");
         Console.WriteLine("===================");
@@ -13,28 +13,28 @@ public static class ConsoleUI
 
     public static void UserPrompt()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
+        Console.ForegroundColor = ThemeManager.Current.UserColor;
         Console.Write("\nYou > ");
         Console.ResetColor();
     }
 
     public static void AiMessage(string text)
     {
-        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.ForegroundColor = ThemeManager.Current.AiColor;
         Console.WriteLine("\nAI > " + text);
         Console.ResetColor();
     }
 
     public static void SystemMessage(string text)
     {
-        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.ForegroundColor = ThemeManager.Current.SystemColor;
         Console.WriteLine("\n" + text);
         Console.ResetColor();
     }
 
     public static void Error(string text)
     {
-        Console.ForegroundColor = ConsoleColor.Red;
+        Console.ForegroundColor = ThemeManager.Current.ErrorColor;
         Console.WriteLine("\n" + text);
         Console.ResetColor();
     }

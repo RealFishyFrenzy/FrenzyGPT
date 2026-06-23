@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Runtime.CompilerServices;
+using System.Security.Permissions;
 
 public static class CommandHandler
 {
@@ -92,7 +93,10 @@ public static class CommandHandler
             case "/plugins":
 
                 PluginManager.ShowPlugins();
+                return true;
 
+            case string command when command.StartsWith("/theme"):
+                ThemeCommand(userInput);
                 return true;
 
             default:
@@ -148,6 +152,63 @@ public static class CommandHandler
         Console.WriteLine($"Model           : {settings.Model}");
         Console.WriteLine($"Theme           : {settings.Theme}");
         Console.WriteLine($"ShowStartup     : {settings.ShowStartup}");
+    }
+
+    private static void ThemeCommand(string userInput)
+    {
+        UserSettings settings = SettingsService.Load();
+        List<Theme> themes = ThemeManager.GetThemes();
+
+        string[] parts = userInput.Split(' ', 2);
+
+        if (parts.Length < 2 || string.IsNullOrWhiteSpace(parts[1]))
+        {
+            ConsoleUI.SystemMessage("Themes");
+
+            for (int i = 0; i < themes.Count; i++)
+            {
+                string selected = themes[i].Name == settings.Theme ? " <-- current" : "";
+                Console.WriteLine($"{i + 1}. {themes[i].Name}{selected}");
+            }
+
+            Console.WriteLine("\nUse: /theme <number>");
+            Console.WriteLine("Or: /theme <theme-name>");
+            return;
+        }
+
+        string choice = parts[1].Trim();
+
+        Theme? selectedTheme = null;
+
+        if (int.TryParse(choice, out int index))
+        {
+            if (index < 1 || index > themes.Count)
+            {
+                ConsoleUI.Error("Invalid theme number.");
+                return;
+            }
+
+            selectedTheme = themes[index - 1];
+        }
+        else
+        {
+            selectedTheme = themes.FirstOrDefault(
+                t => t.Name.Equals(choice, StringComparison.OrdinalIgnoreCase)
+            );
+        }
+
+        if (selectedTheme == null)
+        {
+            ConsoleUI.Error("Unknown theme.");
+            return;
+        }
+
+        settings.Theme = selectedTheme.Name;
+        SettingsService.Save(settings);
+
+        ThemeManager.LoadTheme(selectedTheme.Name);
+
+        ConsoleUI.SystemMessage($"Theme changed to: {selectedTheme.Name}");
     }
 
     private static void ShowAIStatus(IAIProvider client)

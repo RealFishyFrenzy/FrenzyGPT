@@ -14,6 +14,7 @@ class Program
         }
 
         UserSettings settings = SettingsService.Load();
+        ThemeManager.LoadTheme(settings.Theme);
 
         if (settings.ShowStartup)
         {
